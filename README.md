@@ -189,6 +189,7 @@ ZHIPU_API_KEY: your_key
 - `.gitignore` 已排除 `.env`、`*.credentials.yaml`、`.dsh-vision/` 等敏感与临时路径。
 - `vision_status` 只报告配置状态，永不回显 Key。
 - 调用凭证经 DSH 凭据服务按次解析，支持热更新，无需重启。
+- 请求临时文件（含认证头的 curl 配置、请求/响应体）在每次调用后自动清理，不残留磁盘。
 
 ## 成本说明 Cost
 

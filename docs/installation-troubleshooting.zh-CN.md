@@ -84,13 +84,18 @@ dsh plugin --profile web add https://github.com/tdf1995/dsh-plugin-vision.git
 
 **现象**：Key 已正确保存（`vision_status` 显示已配置），`.dsh-vision/curl-*.cfg` 也写入成功，但 curl 报读文件失败。
 
-**根因**：Windows 的 `curl.exe` 无法打开**含非 ASCII（中文）字符的路径**（argv 按 ANSI 代码页传递导致路径解析失败）。插件此前把 curl 配置文件、请求体写在 `工作区/.dsh-vision/` 下，当工作区路径含中文（如 `D:\文档操作`）时 curl 打不开自己的配置文件。
+**根因（两个叠加的 Windows curl 路径问题）**：
 
-**排查方法**：对照实验——把同一份 cfg 复制到纯 ASCII 路径执行 `curl --config` 返回 `STATUS=200`，放在中文路径下则 `exit 26`，即可定位。
+1. **中文路径**：Windows 的 `curl.exe` 无法打开**含非 ASCII（中文）字符的路径**（argv 按 ANSI 代码页传递导致路径解析失败）。当工作区路径含中文（如 `D:\文档操作`）时，插件写在 `工作区/.dsh-vision/` 下的 cfg/payload 文件 curl 打不开。
+2. **反斜杠转义**：curl `--config` 文件解析会把**反斜杠当作转义字符**。Windows 路径（如 `D:\文档操作\.dsh-vision\payload.json`）里的 `\` 会被吞掉/转义，导致 `data-binary "@..."` / `output "..."` 指向错误路径。
 
-**解决**（v0.1.3 起内置）：
-- 临时目录选择逻辑改为：工作区路径**纯 ASCII** → 仍用 `工作区/.dsh-vision`（沙箱友好）；
-- 工作区路径**含非 ASCII** → 自动改用系统临时目录 `os.tmpdir()/dsh-vision-<随机后缀>`（每次调用独立目录，调用结束后连同文件一起清理）。
+**排查方法**：对照实验——把同一份 cfg 复制到纯 ASCII 路径执行 `curl --config` 返回 `STATUS=200`；或用正斜杠改写 cfg 中路径后成功，即可分别定位两个原因。
+
+**解决**（v0.1.3 中文路径 + v0.1.4 反斜杠转义，均已内置）：
+
+- **路径一律使用正斜杠**：`tempDir()` 返回值统一 `.replace(/\\/g, '/')`（curl 配置文件、请求体路径不再有反斜杠转义问题）；
+- **ASCII 工作区** → 仍用 `工作区/.dsh-vision`（沙箱友好）；
+- **工作区含非 ASCII** → 自动改用系统临时目录 `os.tmpdir()/dsh-vision-<随机后缀>`（每次调用独立目录，调用结束后连同文件一起清理）。
 
 > 注意：改用系统临时目录时，请确保会话文件策略允许写入系统临时目录（如 `danger-full-access`），否则 fs 写入会被沙箱拒绝（报「无法写入请求负载」）。
 
@@ -130,3 +135,4 @@ dsh plugin --profile web add https://github.com/tdf1995/dsh-plugin-vision.git
 | 0.1.1 | 修复 `apply(ctx, config)` / `Config(config ?? {})` / `inject 'tools'`；新增加载期回归测试 |
 | 0.1.2 | 修复配置化 Key 引用未生效；平台自适应 curl/pwsh；429/5xx 重试与故障转移；临时文件清理 |
 | 0.1.3 | 修复 Windows curl 无法读取中文路径：临时目录自动切换到系统临时目录（ASCII），调用后清理 |
+| 0.1.4 | 修复 curl `--config` 反斜杠转义：所有 curl 相关路径统一正斜杠（`tempDir` 返回值 `.replace(/\\/g, '/')`） |

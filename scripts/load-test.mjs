@@ -16,6 +16,12 @@ const cfg = plugin.config({});
 console.log('defaults:', JSON.stringify(cfg));
 if (cfg.geminiModel !== 'gemini-3.6-flash') throw new Error('BUG2: geminiModel default missing');
 if (cfg.glmModel !== 'glm-4.6v-flash') throw new Error('BUG2: glmModel default missing');
+// 2b) custom credential refs are honored
+const cfgCustom = plugin.config({ geminiKeyEnv: 'MY_GEMINI', glmKeyEnv: 'MY_ZHIPU' });
+if (cfgCustom.geminiKeyEnv !== 'MY_GEMINI' || cfgCustom.glmKeyEnv !== 'MY_ZHIPU') {
+  throw new Error('custom key env config not honored');
+}
+console.log('custom key envs OK: MY_GEMINI / MY_ZHIPU');
 
 // 3) real mount on a minimal cordis context with stub services
 const ctx = new Context();

@@ -4,7 +4,7 @@
 //  2. Config(config ?? {}) — schemastery fills defaults when config is absent
 //  3. inject includes 'tools' — ctx.tools.register resolves
 import { Context } from '@deepseek-ai/cordis';
-import plugin from '../lib/index.js';
+import plugin, { isAsciiPath, tempDir } from '../lib/index.js';
 
 // 1) plugin shape
 console.log('inject:', plugin.inject.join(','));
@@ -22,6 +22,14 @@ if (cfgCustom.geminiKeyEnv !== 'MY_GEMINI' || cfgCustom.glmKeyEnv !== 'MY_ZHIPU'
   throw new Error('custom key env config not honored');
 }
 console.log('custom key envs OK: MY_GEMINI / MY_ZHIPU');
+
+// 2c) tempDir: forward slashes + ASCII fallback (curl config escape & codepage fixes)
+const t1 = tempDir('D:\\文档操作');
+if (t1.dir.includes('\\') || !t1.isTmp) throw new Error('BUG: Chinese workspace must use ASCII tmpdir with forward slashes');
+const t2 = tempDir('D:\\work');
+if (t2.dir !== 'D:/work/.dsh-vision' || t2.isTmp) throw new Error('BUG: ASCII workspace must stay in workspace with forward slashes');
+if (!isAsciiPath('D:/work') || isAsciiPath('D:\\文档操作')) throw new Error('BUG: isAsciiPath misbehaves');
+console.log('tempDir OK:', t2.dir, '| tmp:', t1.dir.slice(t1.dir.lastIndexOf('/') + 1));
 
 // 3) real mount on a minimal cordis context with stub services
 const ctx = new Context();

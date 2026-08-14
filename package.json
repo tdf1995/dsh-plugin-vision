@@ -1,0 +1,73 @@
+{
+  "name": "dsh-plugin-vision",
+  "version": "0.1.0",
+  "description": "DeepSeek Harness native plugin: give text-only LLMs (e.g. DeepSeek) vision via free Gemini / GLM vision APIs — describe images, OCR, VQA, screenshots, charts.",
+  "type": "module",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.mts",
+      "default": "./lib/index.js"
+    },
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE",
+    "dynamic"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "scripts": {
+    "check": "node --check lib/index.js",
+    "test": "node --check lib/index.js"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1",
+    "@deepseek-ai/dsh-tools": "^0.1.0-rc.6",
+    "@deepseek-ai/schemastery": "^3.18.1"
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1",
+    "@deepseek-ai/dsh-tools": "^0.1.0-rc.6",
+    "@deepseek-ai/schemastery": "^3.18.1"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "cordis",
+    "vision",
+    "image-analysis",
+    "ocr",
+    "gemini",
+    "glm",
+    "zhipu",
+    "multimodal",
+    "plugin",
+    "webui"
+  ],
+  "license": "MIT",
+  "author": "dsh-plugin-vision contributors",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tdf1995/dsh-plugin-vision.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tdf1995/dsh-plugin-vision/issues"
+  },
+  "homepage": "https://github.com/tdf1995/dsh-plugin-vision#readme",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

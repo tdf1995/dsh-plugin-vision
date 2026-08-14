@@ -1,0 +1,21 @@
+# dsh-plugin-vision bundle patch
+# Registers the vision plugin into the DSH composition.
+#
+# Usage (overlay, no install):
+#   dsh web --patch /path/to/dsh-plugin-vision/cordis.patch.yml
+#
+# Or merge into a profile's cordis.patch.yml for persistence, optionally with config:
+#
+#   - insert:
+#       - id: dsh-plugin-vision
+#         name: 'dsh-plugin-vision'
+#         config:
+#           provider: auto        # auto | gemini | glm
+#           geminiModel: gemini-3.6-flash
+#           glmModel: glm-4.6v-flash
+#           geminiKeyEnv: GEMINI_API_KEY
+#           glmKeyEnv: ZHIPU_API_KEY
+#
+- insert:
+    - id: dsh-plugin-vision
+      name: 'dsh-plugin-vision'

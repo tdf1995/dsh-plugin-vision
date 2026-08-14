@@ -1,0 +1,22 @@
+# --- secrets: NEVER commit keys ---
+.env
+.env.*
+*.credentials.yaml
+.credentials.yaml
+credentials.yaml
+
+# --- runtime/temp artifacts ---
+.dsh-vision/
+session.jsonl*
+node_modules/
+*.tgz
+npm-debug.log*
+
+# --- editor/OS ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# machine-specific (absolute path to local credentials file)
+scripts/git-askpass.cmd

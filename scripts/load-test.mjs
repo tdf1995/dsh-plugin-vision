@@ -39,6 +39,8 @@ ctx.provide('timer', {});
 ctx.provide('subprocess', {});
 const registered = [];
 ctx.provide('tools', { register: (tool) => { registered.push(tool.name); return () => {}; } });
+const routes = [];
+ctx.provide('webServer', { register: (route) => { routes.push(route); return () => {}; } });
 
 let thrown = null;
 try {
@@ -51,4 +53,9 @@ if (thrown) {
   process.exit(1);
 }
 console.log('mount OK, tools registered at load:', registered.join(', '));
+const pasteRoute = routes.find((r) => r.path === '/vision/save-image');
+if (!pasteRoute || pasteRoute.kind !== 'exact' || typeof pasteRoute.handler !== 'function') {
+  throw new Error('BUG: /vision/save-image route not registered');
+}
+console.log('route OK: POST /vision/save-image (webServer)');
 console.log('ALL CHECKS PASSED');

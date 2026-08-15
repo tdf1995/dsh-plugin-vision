@@ -11,6 +11,8 @@ session.jsonl*
 node_modules/
 *.tgz
 npm-debug.log*
+package-lock.json
+scripts/check-dynamic.mjs
 
 # --- editor/OS ---
 .DS_Store

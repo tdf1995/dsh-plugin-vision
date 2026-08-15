@@ -49,7 +49,7 @@ DeepSeek 等主流文本模型不支持图片输入。本插件通过 **Gemini**
 | 🗜️ 大图压缩 | 超过 4MB 的图片自动压缩至 1920px（JPEG 质量 85）后上传 |
 | 🔑 `vision_set_key` | 会话内保存 API Key（写入 DSH 凭据库，立即生效） |
 | 📊 `vision_status` | 查看各提供商 Key 配置状态（不泄露 Key 本身） |
-| 📋 粘贴图片（可选） | 浏览器端 Ctrl+V / 拖入图片 → 原生风格附件卡片（见下文） |
+| 📋 粘贴/拖入图片（内置） | 浏览器端 Ctrl+V / 拖入 / 🖼️ 按钮 → 原生风格附件卡片，随包集成、重启不丢 |
 
 ## 安装 Installation
 
@@ -196,20 +196,16 @@ ZHIPU_API_KEY: your_key
 - 视觉调用使用 **Gemini / GLM 免费额度**，通常为 0 元。
 - 本插件自身的 DeepSeek token 开销：单次图像分析往返约数千 tokens，日常使用成本可忽略；具体计费见 DeepSeek 官方定价。
 
-## 浏览器端图片粘贴（可选）Browser Paste & Drop (Optional)
+## 浏览器端图片粘贴与拖入（内置）Browser Paste & Drop (Built-in)
 
-> 社区 npm 包仅含 Host 半区：外部包的浏览器→宿主 RPC 端点需要平台级白名单，无法随包分发。本插件以独立的**动态 Cordis 插件**形式提供浏览器端体验，代码位于仓库 `dynamic/dsh-vision-paste.js`。
+从 **v0.2.0** 起，粘贴能力**随包集成**（Host 半区注册 `/vision/save-image` HTTP 路由，Client 半区以标准 client bundle 加载），与视觉工具同装同删、**重启不丢**，不再需要单独的动态插件。
 
-安装后在会话中可获得：
-
-- 在聊天页 **Ctrl+V 粘贴 / 拖入 / 点击 🖼️ 按钮** 添加图片；
-- 图片保存至工作区 `.dsh-vision/uploads/`，输入框上方展示原生风格**附件卡片**（可移除、可继续添加）；
+- 在聊天页 **Ctrl+V 粘贴 / 拖入 / 点击 🖼️ 按钮** 添加图片（可多张）；
+- 图片经 `POST /vision/save-image` 保存至工作区 `.dsh-vision/uploads/`，输入框上方展示原生风格**附件卡片**（缩略图、可移除、可继续添加）；
 - **不自动发送**：输入问题后按 Enter 发送，模型自动调用 `see_image` 看图；
 - 发送成功后附件卡片自动清除。
 
-**安装方式**：在 DSH Web 的 Cordis 插件面板新建插件，将文件中的「HOST 半区」「CLIENT 半区」分别粘贴至对应代码框并运行（首次运行需批准，建议勾选双勾授权后续版本）。
-
-> 注意：动态插件随会话存在，DSH 重启后需重新加载；npm 包为持久安装。
+> 说明：浏览器→宿主通道由插件自有的 HTTP 路由实现（`ctx.webServer.register`），不依赖平台级 api-proxy 白名单，因此可以随 npm 包分发。
 
 ## 开发构建 Development
 
@@ -218,6 +214,7 @@ git clone https://github.com/tdf1995/dsh-plugin-vision
 cd dsh-plugin-vision
 npm install            # 安装 peer dependencies
 npm run check          # 语法检查 lib/index.js
+npm test               # 加载期回归测试
 npm pack               # 本地打包验证
 ```
 
@@ -233,7 +230,8 @@ npm pack               # 本地打包验证
 
 ## 已知限制 Limitations
 
-- 浏览器粘贴伴侣随会话存在，重启后需重新加载（与 npm 包的持久安装机制不同）。
+- 粘贴/拖入仅对 Web UI（`dsh web`）生效；Host 侧工具在无 Web 界面（TUI 等）时也可用（此时无保存路由，浏览器功能自动缺席）。
+- `/vision/save-image` 路由仅监听回环地址，文件名经过消毒、大小受限；仍建议仅在本机使用。
 - GLM 免费层高峰时段偶发 429，插件自动重试，但极端繁忙时可能失败。
 - Gemini 在国内网络需代理访问；GLM 直连即可。
 

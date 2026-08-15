@@ -1,6 +1,6 @@
 {
   "name": "dsh-plugin-vision",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "DeepSeek Harness native plugin: give text-only LLMs (e.g. DeepSeek) vision via free Gemini / GLM vision APIs — describe images, OCR, VQA, screenshots, charts; integrated browser paste & drop.",
   "type": "module",
   "main": "./lib/index.js",
@@ -34,7 +34,7 @@
   },
   "scripts": {
     "check": "node --check lib/index.js",
-    "test": "node scripts/load-test.mjs && node --check lib/index.js"
+    "test": "node scripts/load-test.mjs && node scripts/sim-client.mjs && node --check lib/index.js && node --check lib/client.js"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "^4.0.1",

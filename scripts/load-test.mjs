@@ -4,7 +4,7 @@
 //  2. Config(config ?? {}) — schemastery fills defaults when config is absent
 //  3. inject includes 'tools' — ctx.tools.register resolves
 import { Context } from '@deepseek-ai/cordis';
-import plugin, { isAsciiPath, tempDir } from '../lib/index.js';
+import plugin, { isAsciiPath, tempDir, savePastedImage } from '../lib/index.js';
 
 // 1) plugin shape
 console.log('inject:', plugin.inject.join(','));
@@ -58,4 +58,27 @@ if (!pasteRoute || pasteRoute.kind !== 'exact' || typeof pasteRoute.handler !== 
   throw new Error('BUG: /vision/save-image route not registered');
 }
 console.log('route OK: POST /vision/save-image (webServer)');
+
+// 4) savePastedImage: decodes a data URL and returns a workspace path (EXT regression)
+const stubCtx = {
+  get: (name) => name === 'sandboxPolicy' ? undefined : undefined,
+  fs: {
+    resolve: async (p) => ({ path: p }),
+    writeText: async () => {},
+  },
+  shell: {
+    resolve: (r) => r,
+    run: async () => ({ exitCode: 0, stderr: { text: '' } }),
+  },
+};
+const saved = await savePastedImage(stubCtx, {
+  mime: 'image/png',
+  name: 'demo.png',
+  dataUrl: 'data:image/png;base64,iVBORw0KGgo=',
+  sessionId: '',
+});
+if (!saved || typeof saved.path !== 'string' || !saved.path.endsWith('.png')) {
+  throw new Error('BUG: savePastedImage failed: ' + JSON.stringify(saved));
+}
+console.log('savePastedImage OK:', saved.path);
 console.log('ALL CHECKS PASSED');
